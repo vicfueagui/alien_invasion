@@ -35,12 +35,16 @@ class Nube:
         #Actualiza el valor del centro del barco, no el rect.
         if self.moviendose_derecha and self.rect.right < self.rect_pantalla.right:
             self.centro_x += self.ai_configuraciones.factor_velocidad_nube
+            # print("Moviéndose a la derecha:", self.centro_x)
         if self.moviendose_izquierda and self.rect.left > 0:
             self.centro_x -= self.ai_configuraciones.factor_velocidad_nube
+            # print("Moviéndose a la izquierda:", self.centro_x)
         if self.moviendose_arriba and self.rect.top > 0:
             self.centro_y -= self.ai_configuraciones.factor_velocidad_nube
+            # print("Moviéndose hacia arriba:", self.centro_y)
         if self.moviendose_abajo and self.rect.bottom < self.rect_pantalla.bottom:
             self.centro_y += self.ai_configuraciones.factor_velocidad_nube
+            # print("Moviéndose hacia abajo:", self.centro_y)
 
 
         #Actualiza el objeto rect desde self.centro

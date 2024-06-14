@@ -23,8 +23,11 @@ def ejecutar_juego():
     # Crea un grupo para almacenar extraterrestres.
     aliens = Group()
 
+    estrellas = Group()
+
     # Crea una flota de extraterrestres.
     fg.crear_flota(ai_configuraciones, pantalla, nube, aliens)
+    fg.crear_cuadricula_estrellas(ai_configuraciones, pantalla, estrellas)
 
     # Inicia el bucle principal del juego
     while True:
@@ -34,8 +37,10 @@ def ejecutar_juego():
         nube.actualizacion()
         # Actualiza la posición de las balas
         fg.actualizar_balas(balas)
+
+        fg.update_aliens(aliens)
         # Redibuja la pantalla y los elementos en ella.
-        fg.actualizar_pantalla(ai_configuraciones, pantalla, nube, aliens, balas)
+        fg.actualizar_pantalla(ai_configuraciones, pantalla, nube, aliens, balas, estrellas)
 
 
 ejecutar_juego()

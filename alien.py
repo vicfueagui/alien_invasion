@@ -27,3 +27,9 @@ class Alien(Sprite):
         """Dibuja el extraterrestre en su ubicación actual."""
         self.pantalla.blit(self.image, self.rect)
 
+
+    def update(self):
+        """Mueve el extraterrestre hacia la derecha."""
+        self.x += self.ai_configuraciones.factor_velocidad_alien
+        self.rect.x = self.x
+
