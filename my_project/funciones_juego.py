@@ -1,13 +1,11 @@
 #funciones_juego.py
 
 import sys
-from time import sleep
 
 import pygame
 from bala import Bala
 from alien import Alien
 from estrella import Estrella
-from gota import Gota
 import random
 
 
@@ -74,7 +72,7 @@ def verificar_eventos(ai_configuraciones, pantalla, nube, balas):
             verificar_eventos_keyup(event, nube)
 
 
-def actualizar_pantalla(ai_configuraciones, pantalla, nube, aliens, balas):
+def actualizar_pantalla(ai_configuraciones, pantalla, nube, aliens, balas, estrellas):
     """Actualiza imágenes en la pantalla y cambia a la nueva pantalla."""
     #Vuelva a dibujar la pantalla durante cada paso por el bucle.
     pantalla.fill(ai_configuraciones.fondo_color)
@@ -83,12 +81,13 @@ def actualizar_pantalla(ai_configuraciones, pantalla, nube, aliens, balas):
         bala.dibujar_bala()
     nube.blitme()
     aliens.draw(pantalla)
+    estrellas.draw(pantalla)
 
     # Hacer visible la pantalla dibujada más recientemente.
     pygame.display.flip()
 
 
-def actualizar_balas(ai_configuraciones, pantalla, nube, aliens, balas):
+def actualizar_balas(balas):
     """Actualizar la posición de las balas y eliminar las balas antiguas."""
     # Actualizar la posición de las balas.
     balas.update()
@@ -96,18 +95,7 @@ def actualizar_balas(ai_configuraciones, pantalla, nube, aliens, balas):
     for bala in balas.copy():
         if bala.rect.bottom <= 0:
             balas.remove(bala)
-            # print("Bala eliminada. Total de balas:", len(balas))
-    verificar_colision_alien_bala(ai_configuraciones, pantalla, nube, aliens, balas)
-
-
-def verificar_colision_alien_bala(ai_configuraciones, pantalla, nube, aliens, balas):
-    """Responder a colisiones bala-extraterrestre."""
-    # Elimina las balas y los extraterrestres que hayan chocado.
-    colisiones = pygame.sprite.groupcollide(balas, aliens, True, True)
-    if len(aliens) == 0:
-        # Destruye las balas existentes y crea una nueva flota.
-        balas.empty()
-        crear_flota(ai_configuraciones, pantalla, nube, aliens)
+            print("Bala eliminada. Total de balas:", len(balas))
 
 
 def recibir_numero_aliens_x(ai_configuraciones, alien_ancho):
@@ -148,6 +136,44 @@ def crear_flota(ai_configuraciones, pantalla, nube, aliens):
             crear_alien(ai_configuraciones, pantalla, aliens, numero_alien, numero_fila)
 
 
+def crear_estrella(ai_configuraciones, pantalla, estrellas, numero_estrella, numero_fila):
+    """Crea una estrella y la coloca en la fila."""
+    estrella = Estrella(ai_configuraciones, pantalla)
+    estrella_ancho = estrella.rect.width
+    estrella.x = estrella_ancho + 2 * estrella_ancho * numero_estrella
+    estrella.rect.x = estrella.x + random.randint(-10, 10)
+    estrella.rect.y = estrella.rect.height + 2 * estrella.rect.height * numero_fila + random.randint(-10, 10)
+    estrellas.add(estrella)
+
+
+def crear_cuadricula_estrellas(ai_configuraciones, pantalla, estrellas):
+    """Crear una cuadrícula de estrellas."""
+    # Crear una estrella y encontrar el número de estrellas en una fila.
+    # El espacio entre cada estrella es igual al ancho de una estrella.
+    estrella = Estrella(ai_configuraciones, pantalla)
+    numero_estrellas_x = recibir_numero_estrellas_x(ai_configuraciones, estrella.rect.width)
+    numero_filas = recibir_numero_filas_estrellas(ai_configuraciones, estrella.rect.height)
+
+    # Crear una cuadrícula de estrellas.
+    for numero_fila in range(numero_filas):
+        for numero_estrella in range(numero_estrellas_x):
+            crear_estrella(ai_configuraciones, pantalla, estrellas, numero_estrella, numero_fila)
+
+
+def recibir_numero_estrellas_x(ai_configuraciones, estrella_ancho):
+    """Determinar el número de estrellas que caben en una fila."""
+    espacio_disponible_x = ai_configuraciones.ancho_pantalla - 2 * estrella_ancho
+    numero_estrellas_x = int(espacio_disponible_x / (2 * estrella_ancho))
+    return numero_estrellas_x
+
+
+def recibir_numero_filas_estrellas(ai_configuraciones, estrella_altura):
+    """Determinar el número de filas de estrellas que caben en la pantalla."""
+    espacio_disponible_y = ai_configuraciones.altura_pantalla - 2 * estrella_altura
+    numero_filas = int(espacio_disponible_y / (2 * estrella_altura))
+    return numero_filas
+
+
 def verificar_bordes_flota(ai_configuraciones, aliens):
     """Responder apropiadamente si un extraterrestre llego a algún borde."""
     for alien in aliens.sprites():
@@ -163,38 +189,7 @@ def cambiar_direccion_flota(ai_configuraciones, aliens):
     ai_configuraciones.direccion_flota *= -1
 
 
-def golpear_nube(ai_configuraciones, estadisticas, pantalla, nube, aliens, balas):
-    """Responder a la nube que es golpeada por un extraterrestre."""
-    if estadisticas.nubes_izquierda > 0:
-        # Decreamento nubes_izquierda.
-        estadisticas.nubes_izquierda -= 1
-
-        # Vaciar la lista de extraterrestres y balas.
-        aliens.empty()
-        balas.empty()
-
-        # Crear una nueva flota y centrar la nube.
-        crear_flota(ai_configuraciones, pantalla, nube, aliens)
-        nube.centro_nube()
-
-        # Pausa.
-        sleep(0.5)
-
-    else:
-        estadisticas.juego_activo = False
-
-
-def verificar_fondo_aliens(ai_configuraciones, estadisticas, pantalla, nube, aliens, balas):
-    """Comprueba si algún extraterrestre ha llegado al final de la pantalla."""
-    rect_pantalla = pantalla.get_rect()
-    for alien in aliens.sprites():
-        if alien.rect.bottom >= rect_pantalla.bottom:
-            # Trate esto igual que si la nube hubiera sido alcanzada.
-            golpear_nube(ai_configuraciones, estadisticas, pantalla, nube, aliens, balas)
-            break
-
-
-def update_aliens(ai_configuraciones, estadisticas, pantalla, nube, aliens, balas):
+def update_aliens(ai_configuraciones, aliens):
     """
     Compruebe si la flota está en los bordes y luego actualizar las posiciones de todos los
     extraterrestres de la flota.
@@ -202,12 +197,8 @@ def update_aliens(ai_configuraciones, estadisticas, pantalla, nube, aliens, bala
     verificar_bordes_flota(ai_configuraciones, aliens)
     aliens.update()
 
-    # Busque colisiones de nubes alienígenas.
-    if pygame.sprite.spritecollideany(nube, aliens):
-        golpear_nube(ai_configuraciones, estadisticas, pantalla, nube, aliens, balas)
 
-    # Busca extraterrestres que lleguen a la parte inferior de la pantalla.
-    verificar_fondo_aliens(ai_configuraciones, estadisticas, pantalla, nube, aliens, balas)
+
 
 
 

@@ -11,23 +11,18 @@ class Configuraciones():
 
         # Nube configuraciones.
         self.factor_velocidad_nube = 1.5
-        self.nube_limite = 3
 
         # Bala configuraciones.
-        self.factor_velocidad_bala = 15
-        self.ancho_bala = 30
+        self.factor_velocidad_bala = 1
+        self.ancho_bala = 3
         self.altura_bala = 15
         self.bala_color = (60, 60, 60)
         self.balas_permitidas = 3
 
         # Configuración extraterrestre.
-        self.factor_velocidad_alien = 5
+        self.factor_velocidad_alien = 1
         self.velocidad_caida_flota = 10
-
         # Dirección_flota de 1 representa la derecha; -1 representa la izquierda.
         self.direccion_flota = 1
-
-        # Gota configuraciones.
-        self.velocidad_gota = 1
 
 
