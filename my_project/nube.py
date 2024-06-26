@@ -54,3 +54,21 @@ class Nube:
     def blitme(self):
         """Dibuja la nave en su ubicación actual"""
         self.pantalla.blit(self.imagen, self.rect)
+
+
+    def centro_nube(self):
+        # Centrar la nube en la pantalla.
+        self.centro = self.rect_pantalla.centerx
+
+
+
+
+
+
+
+
+
+
+
+
+

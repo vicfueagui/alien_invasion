@@ -62,7 +62,7 @@ def verificar_eventos_keyup(event, nube):
         # print("Moviéndose hacia abajo desactivado")
 
 
-def verificar_eventos(ai_configuraciones, pantalla, nube, balas):
+def verificar_eventos(ai_configuraciones, pantalla, estadisticas, boton_reproducir, nube, aliens, balas):
     """Responder a pulsaciones de teclas y eventos del mouse."""
     for event in pygame.event.get():
         # print(event)  # Agregar esta línea para imprimir cada evento
@@ -72,9 +72,33 @@ def verificar_eventos(ai_configuraciones, pantalla, nube, balas):
             verificar_eventos_keydown(event, ai_configuraciones, pantalla, nube, balas)
         elif event.type == pygame.KEYUP:
             verificar_eventos_keyup(event, nube)
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            verificar_boton_reproducir(ai_configuraciones, pantalla, estadisticas, boton_reproducir, nube, aliens,
+                                       balas, mouse_x, mouse_y)
 
 
-def actualizar_pantalla(ai_configuraciones, pantalla, nube, aliens, balas):
+def verificar_boton_reproducir(ai_configuraciones, pantalla, estadisticas, boton_reproducir, nube, aliens, balas,
+                               mouse_x, mouse_y):
+    """Comienza un nuevo juego cuando el jugador hace clic en jugar."""
+    boton_clic = boton_reproducir.rect.collidepoint(mouse_x, mouse_y)
+    if boton_clic and not estadisticas.juego_activo:
+        #   Ocultar el cursor del mouse.
+        pygame.mouse.set_visible(False)
+        #   Restablecer las estadisticas del juego.
+        estadisticas.reiniciar_estadisticas()
+        estadisticas.juego_activo = True
+
+        # Vaciar la lista de extraterrestres y balas.
+        aliens.empty()
+        balas.empty()
+
+        # Crea una nueva flota y centra la nube.
+        crear_flota(ai_configuraciones, pantalla, nube, aliens)
+        nube.centro_nube()
+
+
+def actualizar_pantalla(ai_configuraciones, pantalla, estadisticas, nube, aliens, balas, boton_reproducir):
     """Actualiza imágenes en la pantalla y cambia a la nueva pantalla."""
     #Vuelva a dibujar la pantalla durante cada paso por el bucle.
     pantalla.fill(ai_configuraciones.fondo_color)
@@ -83,6 +107,10 @@ def actualizar_pantalla(ai_configuraciones, pantalla, nube, aliens, balas):
         bala.dibujar_bala()
     nube.blitme()
     aliens.draw(pantalla)
+
+    # Dibuja el botón de reproducción si el juego está inactivo.
+    if not estadisticas.juego_activo:
+        boton_reproducir.draw_boton()
 
     # Hacer visible la pantalla dibujada más recientemente.
     pygame.display.flip()
@@ -166,7 +194,7 @@ def cambiar_direccion_flota(ai_configuraciones, aliens):
 def golpear_nube(ai_configuraciones, estadisticas, pantalla, nube, aliens, balas):
     """Responder a la nube que es golpeada por un extraterrestre."""
     if estadisticas.nubes_izquierda > 0:
-        # Decreamento nubes_izquierda.
+        # Decremento nubes_izquierda.
         estadisticas.nubes_izquierda -= 1
 
         # Vaciar la lista de extraterrestres y balas.
@@ -182,6 +210,7 @@ def golpear_nube(ai_configuraciones, estadisticas, pantalla, nube, aliens, balas
 
     else:
         estadisticas.juego_activo = False
+        pygame.mouse.set_visible(True)
 
 
 def verificar_fondo_aliens(ai_configuraciones, estadisticas, pantalla, nube, aliens, balas):

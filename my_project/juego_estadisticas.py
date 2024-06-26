@@ -7,8 +7,8 @@ class JuegoEstadisticas():
         self.ai_configuraciones = ai_configuraciones
         self.reiniciar_estadisticas()
 
-        # Inicia Alien Invasion en un estado activo.
-        self.juego_activo = True
+        # Inicia Alien Invasion en un estado inactivo.
+        self.juego_activo = False
 
     def reiniciar_estadisticas(self):
         """Inicializa estadísticas que pueden cambiar durante el juego."""
